@@ -16,7 +16,6 @@ def dynamo_scan(tableName):
     dynamo_put(itemName)
     print "working through individual keys"
     while 'LastEvaluatedKey' in response:
-        print('.'),
         try: 
             response = client.scan(
                  TableName=tableName,
@@ -32,6 +31,13 @@ def dynamo_scan(tableName):
         dynamo_put(itemName)
 
 def dynamo_put(itemName):
+    # This section deletes the aws global table atrributes if they exist
+    DeleteAttributeList = [ "aws:rep:deleting", "aws:rep:updatetime", "aws:rep:updateregion" ]
+    for attribute in DeleteAttributeList:
+        if attribute in itemName:
+            del itemName[attribute]
+        
+    # Now start copying data to the newdb
     client = boto3.client('dynamodb') 
     try:                              
         response = client.put_item(       
