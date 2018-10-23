@@ -2,7 +2,9 @@
 import boto3
 import json
 
+def dynamo_scan(tableName):
+    print tableName
 
 if __name__ == "__main__":
-    print "yes"
+    dynamo_scan("yes")
 
