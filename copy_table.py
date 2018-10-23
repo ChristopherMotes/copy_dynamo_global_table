@@ -12,7 +12,18 @@ def dynamo_scan(tableName):
         )
     except:
         raise
-    print response['Items']
+    itemName = response['Items'][0]
+    dynamo_put(itemName)
+
+def dynamo_put(itemName):
+    client = boto3.client('dynamodb') 
+    try:                              
+        response = client.put_item(       
+            TableName="test0",     
+            Item=itemName
+        )                             
+    except:                           
+        raise                         
 
 if __name__ == "__main__":
     dynamo_scan("test0-recovery")
