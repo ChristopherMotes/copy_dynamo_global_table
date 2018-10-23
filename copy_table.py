@@ -2,6 +2,7 @@
 import boto3
 import botocore
 import argparse
+import sys
 
 def dynamo_scan(restoreTableName, destinationTableName):
     client = boto3.client('dynamodb')
@@ -19,7 +20,8 @@ def dynamo_scan(restoreTableName, destinationTableName):
     while 'LastEvaluatedKey' in response:
         try: 
             # this print creates screen action
-            print(".", end=" ")
+            #print(".", end=" ")
+            sys.stdout.write('.')
             response = client.scan(
                  TableName=restoreTableName,
                  Limit=1,
@@ -51,5 +53,9 @@ def dynamo_put(itemName, destinationTableName):
         raise                         
 
 if __name__ == "__main__":
-    dynamo_scan("test0-recovery", "test0")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-r", "--restoretable", help="The source table to restore from", required=True)
+    parser.add_argument("-d", "--destinationtable", help="The desination to restore to", required=True)
+    args = parser.parse_args()
+    dynamo_scan(args.restoretable, args.destinationtable)
 
