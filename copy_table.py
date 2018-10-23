@@ -1,7 +1,6 @@
 #!/usr/bin/python
 import boto3
 import botocore
-import json
 
 def dynamo_scan(tableName):
     client = boto3.client('dynamodb')
@@ -13,19 +12,21 @@ def dynamo_scan(tableName):
         itemName = response['Items'][0]
     except:
         raise
-    print response['LastEvaluatedKey']
-#    dynamo_put(itemName)
+    dynamo_put(itemName)
     while 'LastEvaluatedKey' in response:
-        print "in loop"
         try: 
             response = client.scan(
                  TableName=tableName,
                  Limit=1,
                  ExclusiveStartKey=response['LastEvaluatedKey']
             )
-#            itemName = response['Items'][0]
+            itemName = response['Items'][0]
+        except IndexError:
+            print "That was the last key! Should be recovered"
+            break
         except:
             raise
+        dynamo_put(itemName)
 
 def dynamo_put(itemName):
     client = boto3.client('dynamodb') 
