@@ -10,10 +10,22 @@ def dynamo_scan(tableName):
              TableName=tableName,
              Limit=1
         )
+        itemName = response['Items'][0]
     except:
         raise
-    itemName = response['Items'][0]
-    dynamo_put(itemName)
+    print response['LastEvaluatedKey']
+#    dynamo_put(itemName)
+    while 'LastEvaluatedKey' in response:
+        print "in loop"
+        try: 
+            response = client.scan(
+                 TableName=tableName,
+                 Limit=1,
+                 ExclusiveStartKey=response['LastEvaluatedKey']
+            )
+#            itemName = response['Items'][0]
+        except:
+            raise
 
 def dynamo_put(itemName):
     client = boto3.client('dynamodb') 
