@@ -22,10 +22,11 @@ def dynamo_scan(tableName):
             )
             itemName = response['Items'][0]
         except IndexError:
-            print "That was the last key! Should be recovered"
+            print "\nThat was the last key! Should be recovered"
             break
         except:
             raise
+        print('.'),
         dynamo_put(itemName)
 
 def dynamo_put(itemName):
