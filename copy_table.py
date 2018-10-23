@@ -4,6 +4,7 @@ import botocore
 
 def dynamo_scan(tableName):
     client = boto3.client('dynamodb')
+    print "Running initial data pull"
     try: 
         response = client.scan(
              TableName=tableName,
@@ -13,7 +14,9 @@ def dynamo_scan(tableName):
     except:
         raise
     dynamo_put(itemName)
+    print "working through individual keys"
     while 'LastEvaluatedKey' in response:
+        print('.'),
         try: 
             response = client.scan(
                  TableName=tableName,
@@ -26,7 +29,6 @@ def dynamo_scan(tableName):
             break
         except:
             raise
-        print('.'),
         dynamo_put(itemName)
 
 def dynamo_put(itemName):
