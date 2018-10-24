@@ -13,6 +13,10 @@ def dynamo_scan(restoreTableName, destinationTableName):
              Limit=1
         )
         itemName = response['Items'][0]
+    except IndexError as errorMessage:
+        print(errorMessage)
+        print("Ensure items exist in " + restoreTableName) 
+        exit(110)
     except:
         raise
     dynamo_put(itemName, destinationTableName)
