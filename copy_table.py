@@ -16,11 +16,11 @@ def dynamo_scan(restoreTableName, destinationTableName):
     except IndexError as errorMessage:
         print(errorMessage)
         print("Ensure items exist in " + restoreTableName) 
-        exit(110)
+        exit(100)
     except client.exceptions.ResourceNotFoundException as errorMessage:
         print(errorMessage)
         print("Check AWS environment variables, then validate " + restoreTableName)
-        exit(111)
+        exit(101)
     except:
         raise
     dynamo_put(itemName, destinationTableName)
@@ -57,6 +57,10 @@ def dynamo_put(itemName, destinationTableName):
             TableName=destinationTableName,
             Item=itemName
         )                             
+    except client.exceptions.ResourceNotFoundException as errorMessage:
+        print(errorMessage)
+        print("Check AWS environment variables, then validate " + destinationTableName)
+        exit(111)
     except:                           
         raise                         
 
