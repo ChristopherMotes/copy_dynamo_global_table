@@ -4,10 +4,11 @@ import botocore
 import argparse
 import sys
 
+
 def dynamo_scan(restoreTableName, destinationTableName):
     client = boto3.client('dynamodb')
     print("Running initial data pull")
-    try: 
+    try:
         response = client.scan(
              TableName=restoreTableName,
              Limit=1
@@ -15,7 +16,7 @@ def dynamo_scan(restoreTableName, destinationTableName):
         itemName = response['Items'][0]
     except IndexError as errorMessage:
         print(errorMessage)
-        print("Ensure items exist in " + restoreTableName) 
+        print("Ensure items exist in " + restoreTableName)
         exit(100)
     except client.exceptions.ResourceNotFoundException as errorMessage:
         print(errorMessage)
@@ -26,10 +27,9 @@ def dynamo_scan(restoreTableName, destinationTableName):
     dynamo_put(itemName, destinationTableName)
     print("working through individual keys")
     while 'LastEvaluatedKey' in response:
-        try: 
+        try:
             # this print creates screen action
-            #print(".", end=" ")
-            sys.stdout.write('.')
+            print(".", end=" ")
             response = client.scan(
                  TableName=restoreTableName,
                  Limit=1,
@@ -43,26 +43,28 @@ def dynamo_scan(restoreTableName, destinationTableName):
             raise
         dynamo_put(itemName, destinationTableName)
 
+
 def dynamo_put(itemName, destinationTableName):
-    # This section deletes the aws global table atrributes if they exist
-    DeleteAttributeList = [ "aws:rep:deleting", "aws:rep:updatetime", "aws:rep:updateregion" ]
+    # This section deletes the aws global table attributes if they exist
+    DeleteAttributeList = ["aws:rep:deleting", "aws:rep:updatetime", "aws:rep:updateregion"]
     for attribute in DeleteAttributeList:
         if attribute in itemName:
             del itemName[attribute]
-        
+
     # Now start copying data to the newdb
-    client = boto3.client('dynamodb') 
-    try:                              
-        response = client.put_item(       
+    client = boto3.client('dynamodb')
+    try:
+        response = client.put_item(
             TableName=destinationTableName,
             Item=itemName
-        )                             
+        )
     except client.exceptions.ResourceNotFoundException as errorMessage:
         print(errorMessage)
         print("Check AWS environment variables, then validate " + destinationTableName)
         exit(111)
-    except:                           
-        raise                         
+    except:
+        raise
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -70,4 +72,3 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--destinationtable", help="The desination to restore to", required=True)
     args = parser.parse_args()
     dynamo_scan(args.restoretable, args.destinationtable)
-
